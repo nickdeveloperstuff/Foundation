@@ -1,5 +1,9 @@
 # Foundation
 
+Foundation project repository
+
+## Getting Started
+
 To start your Phoenix server:
 
 * Run `mix setup` to install and setup dependencies
