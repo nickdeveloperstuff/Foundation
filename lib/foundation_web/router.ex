@@ -43,6 +43,7 @@ defmodule FoundationWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/tester-demo", TesterDemoLive
     auth_routes AuthController, Foundation.Accounts.User, path: "/auth"
     sign_out_route AuthController
 
