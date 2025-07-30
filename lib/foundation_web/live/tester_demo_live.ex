@@ -157,24 +157,32 @@ defmodule FoundationWeb.TesterDemoLive do
         
         <.card_widget span={6}>
           <:header>Quick Actions</:header>
-          <div class="grid grid-cols-2 gap-4">
-            <.button_widget variant="primary" class="w-full">
-              <.icon name="hero-plus" class="size-4 mr-2" />
-              Add Customer
-            </.button_widget>
-            <.button_widget variant="secondary" class="w-full">
-              <.icon name="hero-document-text" class="size-4 mr-2" />
-              Generate Report
-            </.button_widget>
-            <.button_widget variant="secondary" class="w-full">
-              <.icon name="hero-credit-card" class="size-4 mr-2" />
-              Process Payment
-            </.button_widget>
-            <.button_widget variant="secondary" class="w-full">
-              <.icon name="hero-envelope" class="size-4 mr-2" />
-              Send Newsletter
-            </.button_widget>
-          </div>
+          <.list_widget spacing={4} direction="vertical">
+            <:item>
+              <.button_widget variant="primary" class="w-full">
+                <.icon name="hero-plus" class="size-4 mr-2" />
+                Add Customer
+              </.button_widget>
+            </:item>
+            <:item>
+              <.button_widget variant="secondary" class="w-full">
+                <.icon name="hero-document-text" class="size-4 mr-2" />
+                Generate Report
+              </.button_widget>
+            </:item>
+            <:item>
+              <.button_widget variant="secondary" class="w-full">
+                <.icon name="hero-credit-card" class="size-4 mr-2" />
+                Process Payment
+              </.button_widget>
+            </:item>
+            <:item>
+              <.button_widget variant="secondary" class="w-full">
+                <.icon name="hero-envelope" class="size-4 mr-2" />
+                Send Newsletter
+              </.button_widget>
+            </:item>
+          </.list_widget>
         </.card_widget>
         
         <.card_widget span={6}>

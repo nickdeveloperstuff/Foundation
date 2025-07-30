@@ -1,0 +1,96 @@
+# Page snapshot
+
+```yaml
+- complementary:
+  - text: SaaSy Dashboard
+  - list:
+    - listitem:
+      - link "Dashboard":
+        - /url: /tester-demo
+    - listitem:
+      - link "Customers":
+        - /url: /tester-demo/customers
+    - listitem:
+      - link "Analytics":
+        - /url: /tester-demo/analytics
+    - listitem:
+      - link "Reports":
+        - /url: /tester-demo/reports
+    - listitem:
+      - link "Billing":
+        - /url: /tester-demo/billing
+    - listitem:
+      - link "Settings":
+        - /url: /tester-demo/settings
+  - button "Profile"
+- main:
+  - heading "Dashboard Overview" [level=1]
+  - paragraph: Welcome back! Here's what's happening with your business.
+  - heading "Total Revenue" [level=2]
+  - text: $89,432 +12% this month
+  - heading "Active Users" [level=2]
+  - text: 1,892 +8% this month
+  - heading "New Signups" [level=2]
+  - text: 156 22 per day avg
+  - heading "Churn Rate" [level=2]
+  - text: 2.3% -0.5% vs last month
+  - heading "Recent Activity" [level=2]
+  - table:
+    - rowgroup:
+      - row "Time User Action Status":
+        - cell "Time"
+        - cell "User"
+        - cell "Action"
+        - cell "Status"
+    - rowgroup:
+      - row "2 mins ago john.doe@example.com Upgraded to Pro plan success":
+        - cell "2 mins ago"
+        - cell "john.doe@example.com"
+        - cell "Upgraded to Pro plan"
+        - cell "success"
+      - row "15 mins ago sarah.smith@example.com Created new project success":
+        - cell "15 mins ago"
+        - cell "sarah.smith@example.com"
+        - cell "Created new project"
+        - cell "success"
+      - row "1 hour ago mike.jones@example.com Payment failed failed":
+        - cell "1 hour ago"
+        - cell "mike.jones@example.com"
+        - cell "Payment failed"
+        - cell "failed"
+      - row "2 hours ago emma.wilson@example.com Exported data report success":
+        - cell "2 hours ago"
+        - cell "emma.wilson@example.com"
+        - cell "Exported data report"
+        - cell "success"
+      - row "3 hours ago david.brown@example.com Subscription renewal pending":
+        - cell "3 hours ago"
+        - cell "david.brown@example.com"
+        - cell "Subscription renewal"
+        - cell "pending"
+      - row "5 hours ago lisa.taylor@example.com Added team member success":
+        - cell "5 hours ago"
+        - cell "lisa.taylor@example.com"
+        - cell "Added team member"
+        - cell "success"
+  - heading "User Statistics" [level=2]
+  - list:
+    - listitem: Free Tier 892
+    - listitem: Basic Plan 543
+    - listitem: Pro Plan 387
+    - listitem: Enterprise 70
+  - button "View Details"
+  - heading "Revenue Chart (Placeholder)" [level=2]
+  - paragraph: Chart visualization would go here
+  - heading "Quick Actions" [level=2]
+  - button "Add Customer"
+  - button "Generate Report"
+  - button "Process Payment"
+  - button "Send Newsletter"
+  - heading "System Health" [level=2]
+  - list:
+    - listitem: API Response Time 45ms
+    - listitem: Database Load 67%
+    - listitem: Server Uptime 99.9%
+    - listitem: Error Rate 0.02%
+```
