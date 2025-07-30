@@ -1,0 +1,31 @@
+/* Full-screen grid container */
+.layout-full {
+  display: grid;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* 12-column grid system */
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-6);
+}
+
+/* Container queries */
+@container (min-width: 768px) {
+  .grid-12 { gap: var(--space-8); }
+}
+
+@container (min-width: 1024px) {
+  .grid-12 { gap: var(--space-10); }
+}
+
+/* Grid span utilities */
+.span-1 { grid-column: span 1; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-6 { grid-column: span 6; }
+.span-8 { grid-column: span 8; }
+.span-12 { grid-column: span 12; }

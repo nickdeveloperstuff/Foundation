@@ -30,6 +30,11 @@ defmodule FoundationWeb.CoreComponents do
   use Gettext, backend: FoundationWeb.Gettext
 
   alias Phoenix.LiveView.JS
+  
+  # Import widget components
+  import FoundationWeb.Components.Widgets
+  import FoundationWeb.Components.Widgets.{Button, Card, Input, Form, List, Table, Modal, Navigation}
+  import FoundationWeb.Components.LayoutWidgets
 
   @doc """
   Renders flash notices.
@@ -93,6 +98,7 @@ defmodule FoundationWeb.CoreComponents do
   attr :variant, :string, values: ~w(primary)
   slot :inner_block, required: true
 
+  @deprecated "Use button_widget/1 instead"
   def button(%{rest: rest} = assigns) do
     variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
 
