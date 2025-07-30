@@ -9,6 +9,11 @@ defmodule FoundationWeb.TesterDemoLive do
   import FoundationWeb.Components.Widgets.Table
   import FoundationWeb.Components.Widgets.Modal
   import FoundationWeb.Components.Widgets.Navigation
+  import FoundationWeb.Components.Widgets.Heading
+  import FoundationWeb.Components.Widgets.Stat
+  import FoundationWeb.Components.Widgets.Badge
+  import FoundationWeb.Components.Widgets.Placeholder
+  import FoundationWeb.Components.Widgets.StatRow
   import FoundationWeb.Components.LayoutWidgets
   
   def mount(_params, _session, socket) do
@@ -55,33 +60,51 @@ defmodule FoundationWeb.TesterDemoLive do
       </:sidebar>
       
       <.grid_layout>
-        <div class="span-12 mb-8">
-          <h1 class="text-3xl font-bold">Dashboard Overview</h1>
-          <p class="text-base-content/70 mt-2">Welcome back! Here's what's happening with your business.</p>
-        </div>
+        <.heading_widget variant="page">
+          Dashboard Overview
+          <:description>
+            Welcome back! Here's what's happening with your business.
+          </:description>
+        </.heading_widget>
         
         <.card_widget span={3}>
           <:header>Total Revenue</:header>
-          <div class="text-3xl font-bold">$<%= @kpi_data.revenue %></div>
-          <div class="text-sm text-success">+<%= @kpi_data.revenue_growth %>% this month</div>
+          <.stat_widget 
+            value={"$#{@kpi_data.revenue}"}
+            change={"+#{@kpi_data.revenue_growth}%"}
+            change_label="this month"
+            trend="up"
+          />
         </.card_widget>
         
         <.card_widget span={3}>
           <:header>Active Users</:header>
-          <div class="text-3xl font-bold"><%= @kpi_data.active_users %></div>
-          <div class="text-sm text-success">+<%= @kpi_data.user_growth %>% this month</div>
+          <.stat_widget 
+            value={to_string(@kpi_data.active_users)}
+            change={"+#{@kpi_data.user_growth}%"}
+            change_label="this month"
+            trend="up"
+          />
         </.card_widget>
         
         <.card_widget span={3}>
           <:header>New Signups</:header>
-          <div class="text-3xl font-bold"><%= @kpi_data.new_signups %></div>
-          <div class="text-sm text-base-content/70"><%= @kpi_data.signup_rate %> per day avg</div>
+          <.stat_widget 
+            value={to_string(@kpi_data.new_signups)}
+            change={to_string(@kpi_data.signup_rate)}
+            change_label="per day avg"
+            trend="neutral"
+          />
         </.card_widget>
         
         <.card_widget span={3}>
           <:header>Churn Rate</:header>
-          <div class="text-3xl font-bold"><%= @kpi_data.churn_rate %>%</div>
-          <div class="text-sm text-error">-<%= @kpi_data.churn_change %>% vs last month</div>
+          <.stat_widget 
+            value="#{@kpi_data.churn_rate}%"
+            change="-#{@kpi_data.churn_change}%"
+            change_label="vs last month"
+            trend="down"
+          />
         </.card_widget>
         
         <.card_widget span={8}>
@@ -97,44 +120,27 @@ defmodule FoundationWeb.TesterDemoLive do
               <%= row.action %>
             </:col>
             <:col label="Status" width="w-1/5" :let={row}>
-              <span class={[
-                "badge",
-                row.status == "success" && "badge-success",
-                row.status == "pending" && "badge-warning",
-                row.status == "failed" && "badge-error"
-              ]}>
+              <.badge_widget variant={badge_variant(row.status)}>
                 <%= row.status %>
-              </span>
+              </.badge_widget>
             </:col>
           </.table_widget>
         </.card_widget>
         
         <.card_widget span={4}>
           <:header>User Statistics</:header>
-          <.list_widget spacing={4} direction="vertical">
+          <.list_widget spacing={2} direction="vertical">
             <:item>
-              <div class="flex justify-between items-center">
-                <span class="text-sm">Free Tier</span>
-                <span class="font-bold"><%= @user_stats.free %></span>
-              </div>
+              <.stat_row_widget label="Free Tier" value={to_string(@user_stats.free)} />
             </:item>
             <:item>
-              <div class="flex justify-between items-center">
-                <span class="text-sm">Basic Plan</span>
-                <span class="font-bold"><%= @user_stats.basic %></span>
-              </div>
+              <.stat_row_widget label="Basic Plan" value={to_string(@user_stats.basic)} />
             </:item>
             <:item>
-              <div class="flex justify-between items-center">
-                <span class="text-sm">Pro Plan</span>
-                <span class="font-bold"><%= @user_stats.pro %></span>
-              </div>
+              <.stat_row_widget label="Pro Plan" value={to_string(@user_stats.pro)} />
             </:item>
             <:item>
-              <div class="flex justify-between items-center">
-                <span class="text-sm">Enterprise</span>
-                <span class="font-bold"><%= @user_stats.enterprise %></span>
-              </div>
+              <.stat_row_widget label="Enterprise" value={to_string(@user_stats.enterprise)} />
             </:item>
           </.list_widget>
           <:actions>
@@ -144,9 +150,9 @@ defmodule FoundationWeb.TesterDemoLive do
         
         <.card_widget span={12}>
           <:header>Revenue Chart (Placeholder)</:header>
-          <div class="h-64 bg-base-200 rounded-lg flex items-center justify-center">
-            <p class="text-base-content/50">Chart visualization would go here</p>
-          </div>
+          <.placeholder_widget height="lg" icon="hero-chart-bar">
+            Chart visualization would go here
+          </.placeholder_widget>
         </.card_widget>
         
         <.card_widget span={6}>
@@ -173,30 +179,18 @@ defmodule FoundationWeb.TesterDemoLive do
         
         <.card_widget span={6}>
           <:header>System Health</:header>
-          <.list_widget spacing={3} direction="vertical">
+          <.list_widget spacing={2} direction="vertical">
             <:item>
-              <div class="flex justify-between items-center">
-                <span>API Response Time</span>
-                <span class="badge badge-success">45ms</span>
-              </div>
+              <.stat_row_widget label="API Response Time" value="45ms" />
             </:item>
             <:item>
-              <div class="flex justify-between items-center">
-                <span>Database Load</span>
-                <span class="badge badge-warning">67%</span>
-              </div>
+              <.stat_row_widget label="Database Load" value="67%" />
             </:item>
             <:item>
-              <div class="flex justify-between items-center">
-                <span>Server Uptime</span>
-                <span class="badge badge-success">99.9%</span>
-              </div>
+              <.stat_row_widget label="Server Uptime" value="99.9%" />
             </:item>
             <:item>
-              <div class="flex justify-between items-center">
-                <span>Error Rate</span>
-                <span class="badge badge-success">0.02%</span>
-              </div>
+              <.stat_row_widget label="Error Rate" value="0.02%" />
             </:item>
           </.list_widget>
         </.card_widget>
@@ -237,4 +231,9 @@ defmodule FoundationWeb.TesterDemoLive do
       enterprise: 70
     }
   end
+  
+  defp badge_variant("success"), do: "success"
+  defp badge_variant("pending"), do: "warning"
+  defp badge_variant("failed"), do: "error"
+  defp badge_variant(_), do: "neutral"
 end

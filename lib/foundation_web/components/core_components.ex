@@ -34,6 +34,7 @@ defmodule FoundationWeb.CoreComponents do
   # Import widget components
   import FoundationWeb.Components.Widgets
   import FoundationWeb.Components.Widgets.{Button, Card, Input, Form, List, Table, Modal, Navigation}
+  import FoundationWeb.Components.Widgets.{Heading, Stat, Badge, Placeholder, StatRow}
   import FoundationWeb.Components.LayoutWidgets
 
   @doc """

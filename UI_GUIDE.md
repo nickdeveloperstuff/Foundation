@@ -40,6 +40,27 @@ The Foundation UI System is a custom-built component library that wraps DaisyUI 
 
 ## Core Concepts
 
+### CRITICAL: Widget-Only Development Philosophy
+
+**The #1 Rule: If you're writing HTML with classes, you're doing it wrong.**
+
+Every visual element in the Foundation UI system should be a pre-wrapped widget. This ensures:
+- Consistent styling across the entire application
+- Design system enforcement without thinking
+- Zero need to know Tailwind classes
+- Changes can be made in one place
+- True "lego brick" development
+
+Examples:
+```elixir
+# ❌ WRONG - Raw HTML with classes
+<div class="text-3xl font-bold">$89,432</div>
+<div class="text-sm text-success">+12% this month</div>
+
+# ✅ RIGHT - Using a widget
+<.stat_widget value="$89,432" change="+12%" change_label="this month" trend="up" />
+```
+
 ### 1. The 4px Atomic Spacing Scale
 
 All spacing in the system is based on a 4px unit. This creates visual harmony and consistency.
@@ -129,6 +150,7 @@ All widgets are imported in `core_components.ex`:
 ```elixir
 import FoundationWeb.Components.Widgets
 import FoundationWeb.Components.Widgets.{Button, Card, Input, Form, List, Table, Modal, Navigation}
+import FoundationWeb.Components.Widgets.{Heading, Stat, Badge, Placeholder, StatRow}
 import FoundationWeb.Components.LayoutWidgets
 ```
 
@@ -137,18 +159,25 @@ import FoundationWeb.Components.LayoutWidgets
 ### Available Widgets
 
 #### 1. Button Widget (`button_widget`)
-Wrapped button with grid awareness and alignment.
+Wrapped button with optional grid awareness and alignment.
 
 **Attributes:**
 - `variant`: "primary" | "secondary" | "accent" | "ghost" | "link"
 - `size`: "sm" | "md" | "lg"
-- `span`: 1-12 (grid columns to span)
-- `align`: "start" | "center" | "end"
+- `span`: 1-12 (optional - when omitted, no wrapper div is created)
+- `align`: "start" | "center" | "end" (only applies when span is set)
+- `class`: Additional CSS classes (e.g., "w-full" for full width)
 
-**Example:**
+**Examples:**
 ```elixir
+# With grid span
 <.button_widget span={4} align="center" variant="primary">
   Save Changes
+</.button_widget>
+
+# Without span (no wrapper div)
+<.button_widget variant="secondary" class="w-full">
+  Cancel
 </.button_widget>
 ```
 
@@ -272,23 +301,113 @@ Dialog modal with backdrop.
 ```
 
 #### 8. Navigation Widget (`navigation_widget`)
-Responsive navigation bar.
+Vertical sidebar navigation (optimized for dashboard layouts).
 
 **Attributes:**
 - `brand`: Brand/logo text
 - Slot `:nav_item` with `path` and `active` attributes
-- Slot `:actions` for right-side actions
+- Slot `:actions` for bottom actions
 
 **Example:**
 ```elixir
-<.navigation_widget brand="My App">
-  <:nav_item path="/" active>Home</:nav_item>
-  <:nav_item path="/products">Products</:nav_item>
-  <:nav_item path="/about">About</:nav_item>
+<.navigation_widget brand="My Dashboard">
+  <:nav_item path="/dashboard" active>Dashboard</:nav_item>
+  <:nav_item path="/users">Users</:nav_item>
+  <:nav_item path="/settings">Settings</:nav_item>
   <:actions>
-    <.button_widget size="sm" variant="ghost">Login</.button_widget>
+    <.button_widget size="sm" variant="ghost">Profile</.button_widget>
   </:actions>
 </.navigation_widget>
+```
+
+#### 9. Heading Widget (`heading_widget`)
+Consistent page and section headings with automatic spacing.
+
+**Attributes:**
+- `variant`: "page" | "section" | "subsection" (default: "page")
+- `span`: 1-12 (default: 12)
+- Slot `:description` for optional subtitle
+
+**Example:**
+```elixir
+<.heading_widget variant="page">
+  Dashboard Overview
+  <:description>
+    Welcome back! Here's what's happening with your business.
+  </:description>
+</.heading_widget>
+```
+
+#### 10. Stat Widget (`stat_widget`)
+KPI and metric displays with automatic formatting.
+
+**Attributes:**
+- `value`: Main value to display (required)
+- `label`: Optional label above value
+- `change`: Change indicator (e.g., "+12%")
+- `change_label`: Label for change (e.g., "this month")
+- `trend`: "up" | "down" | "neutral" (affects color)
+- `size`: "sm" | "md" | "lg" (default: "md")
+- `span`: Grid columns to span (optional)
+
+**Example:**
+```elixir
+<.stat_widget 
+  value="$89,432"
+  label="Total Revenue"
+  change="+12%"
+  change_label="this month"
+  trend="up"
+/>
+```
+
+#### 11. Badge Widget (`badge_widget`)
+Status indicators and labels with consistent styling.
+
+**Attributes:**
+- `variant`: "success" | "error" | "warning" | "info" | "primary" | "secondary" | "accent" | "neutral" (default: "neutral")
+- `size`: "xs" | "sm" | "md" | "lg" (default: "md")
+- `outline`: Boolean for outline style (default: false)
+
+**Example:**
+```elixir
+<.badge_widget variant="success">Active</.badge_widget>
+<.badge_widget variant="warning" outline>Pending</.badge_widget>
+```
+
+#### 12. Placeholder Widget (`placeholder_widget`)
+Content placeholders for empty states or loading.
+
+**Attributes:**
+- `height`: "sm" | "md" | "lg" | "xl" (default: "md")
+- `span`: 1-12 (default: 12)
+- `icon`: Optional Heroicon name
+
+**Example:**
+```elixir
+<.placeholder_widget height="lg" icon="hero-chart-bar">
+  Chart visualization would go here
+</.placeholder_widget>
+```
+
+#### 13. Stat Row Widget (`stat_row_widget`)
+Label/value pairs for lists and tables.
+
+**Attributes:**
+- `label`: Left-aligned label (required)
+- `value`: Right-aligned value (required)
+- `size`: "sm" | "md" | "lg" (default: "md")
+
+**Example:**
+```elixir
+<.list_widget>
+  <:item>
+    <.stat_row_widget label="Free Tier" value="892" />
+  </:item>
+  <:item>
+    <.stat_row_widget label="Pro Plan" value="387" />
+  </:item>
+</.list_widget>
 ```
 
 ## Layout System
@@ -308,19 +427,26 @@ Full-screen 12-column grid container.
 ```
 
 #### 2. Dashboard Layout (`dashboard_layout`)
-Sidebar + main content layout.
+Fixed sidebar (280px) + main content layout using CSS Grid.
+
+**Features:**
+- Fixed 280px sidebar width
+- Sidebar has `bg-base-200` background
+- Main content area is scrollable
+- Uses `grid-cols-[280px_1fr]` for proper layout
 
 **Usage:**
 ```elixir
 <.dashboard_layout>
   <:sidebar>
     <.navigation_widget brand="Dashboard">
-      <!-- nav items -->
+      <:nav_item path="/dashboard" active>Dashboard</:nav_item>
+      <:nav_item path="/users">Users</:nav_item>
     </.navigation_widget>
   </:sidebar>
   
   <.grid_layout>
-    <!-- main content -->
+    <!-- main content with 12-column grid -->
   </.grid_layout>
 </.dashboard_layout>
 ```
@@ -354,6 +480,87 @@ Grid gaps automatically adjust:
 - Desktop: `gap: var(--space-10)` (40px)
 
 ## Building UIs
+
+### Widget-Only Development Example
+
+Here's a complete dashboard built using ONLY widgets - no raw HTML:
+
+```elixir
+<.dashboard_layout>
+  <:sidebar>
+    <.navigation_widget brand="SaaSy Dashboard">
+      <:nav_item path="/dashboard" active>Dashboard</:nav_item>
+      <:nav_item path="/customers">Customers</:nav_item>
+      <:nav_item path="/analytics">Analytics</:nav_item>
+      <:actions>
+        <.button_widget size="sm" variant="ghost">Profile</.button_widget>
+      </:actions>
+    </.navigation_widget>
+  </:sidebar>
+  
+  <.grid_layout>
+    <.heading_widget variant="page">
+      Dashboard Overview
+      <:description>
+        Welcome back! Here's what's happening with your business.
+      </:description>
+    </.heading_widget>
+    
+    <!-- KPI Cards Row -->
+    <.card_widget span={3}>
+      <:header>Total Revenue</:header>
+      <.stat_widget 
+        value="$89,432"
+        change="+12%"
+        change_label="this month"
+        trend="up"
+      />
+    </.card_widget>
+    
+    <.card_widget span={3}>
+      <:header>Active Users</:header>
+      <.stat_widget 
+        value="1,892"
+        change="+8%"
+        change_label="this month"
+        trend="up"
+      />
+    </.card_widget>
+    
+    <!-- Activity Table -->
+    <.card_widget span={8}>
+      <:header>Recent Activity</:header>
+      <.table_widget id="activity" rows={@activities}>
+        <:col label="Time"><%= row.time %></:col>
+        <:col label="User"><%= row.user %></:col>
+        <:col label="Status">
+          <.badge_widget variant={badge_variant(row.status)}>
+            <%= row.status %>
+          </.badge_widget>
+        </:col>
+      </.table_widget>
+    </.card_widget>
+    
+    <!-- User Stats -->
+    <.card_widget span={4}>
+      <:header>User Statistics</:header>
+      <.list_widget spacing={2}>
+        <:item>
+          <.stat_row_widget label="Free Tier" value="892" />
+        </:item>
+        <:item>
+          <.stat_row_widget label="Pro Plan" value="387" />
+        </:item>
+      </.list_widget>
+      <:actions>
+        <.button_widget size="sm" variant="primary">View Details</.button_widget>
+      </:actions>
+    </.card_widget>
+  </.grid_layout>
+</.dashboard_layout>
+```
+
+Notice: **Zero raw HTML elements**. Everything is a widget!
 
 ### Basic Page Structure
 
@@ -446,13 +653,50 @@ end
 
 ## Best Practices
 
-### 1. Always Use the Spacing Scale
+### 1. Use Widgets for Everything
+```elixir
+# ❌ NEVER write raw HTML
+<h1 class="text-3xl font-bold">Page Title</h1>
+<div class="text-sm text-success">+12% growth</div>
+<span class="badge badge-success">Active</span>
+
+# ✅ ALWAYS use widgets
+<.heading_widget variant="page">Page Title</.heading_widget>
+<.stat_widget value="156" change="+12%" trend="up" />
+<.badge_widget variant="success">Active</.badge_widget>
+```
+
+### 2. Common Widget Patterns
+```elixir
+# Buttons in grids - use class="w-full" instead of span
+<div class="grid grid-cols-2 gap-4">
+  <.button_widget variant="primary" class="w-full">Save</.button_widget>
+  <.button_widget variant="secondary" class="w-full">Cancel</.button_widget>
+</div>
+
+# Status badges in tables
+<.table_widget rows={@users}>
+  <:col label="Status" :let={row}>
+    <.badge_widget variant={status_variant(row.status)}>
+      <%= row.status %>
+    </.badge_widget>
+  </:col>
+</.table_widget>
+
+# KPI cards with stats
+<.card_widget span={3}>
+  <:header>Revenue</:header>
+  <.stat_widget value="$45,678" change="+8%" trend="up" />
+</.card_widget>
+```
+
+### 3. Always Use the Spacing Scale
 ```elixir
 # ❌ Don't use arbitrary values
 <div class="p-7">Content</div>
 
-# ✅ Use spacing scale values
-<div class="p-8">Content</div>  <!-- 32px -->
+# ✅ Use spacing scale values  
+<.card_widget padding={8}>Content</.card_widget>  <!-- 32px -->
 ```
 
 ### 2. Specify Grid Spans
