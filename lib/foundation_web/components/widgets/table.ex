@@ -12,12 +12,12 @@ defmodule FoundationWeb.Components.Widgets.Table do
 
   def table_widget(assigns) do
     ~H"""
-    <div class={["span-#{@span}", "overflow-x-auto", @class]}>
-      <table class="table w-full">
+    <div class={["span-#{@span}", "w-full overflow-x-auto", @class]}>
+      <table class="table table-zebra w-full">
         <thead>
           <tr>
             <th :for={col <- @col} class={[
-              "px-6 py-4",
+              "px-4 py-3",
               col[:width]
             ]}>
               {col[:label]}
@@ -25,8 +25,8 @@ defmodule FoundationWeb.Components.Widgets.Table do
           </tr>
         </thead>
         <tbody>
-          <tr :for={row <- @rows}>
-            <td :for={col <- @col} class="px-6 py-4">
+          <tr :for={row <- @rows} class="hover">
+            <td :for={col <- @col} class="px-4 py-3">
               {render_slot(col, row)}
             </td>
           </tr>

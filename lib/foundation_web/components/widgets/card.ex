@@ -15,9 +15,13 @@ defmodule FoundationWeb.Components.Widgets.Card do
       "card",
       "bg-base-100",
       "shadow-xl",
+      "h-fit",
       @class
     ]}>
-      <div class="card-body p-#{@padding}">
+      <div class={[
+        "card-body",
+        padding_class(@padding)
+      ]}>
         <h2 :if={@header != []} class="card-title mb-4">
           {render_slot(@header)}
         </h2>
@@ -31,4 +35,15 @@ defmodule FoundationWeb.Components.Widgets.Card do
     </div>
     """
   end
+  
+  defp padding_class(1), do: "p-1"
+  defp padding_class(2), do: "p-2"
+  defp padding_class(3), do: "p-3"
+  defp padding_class(4), do: "p-4"
+  defp padding_class(5), do: "p-5"
+  defp padding_class(6), do: "p-6"
+  defp padding_class(8), do: "p-8"
+  defp padding_class(10), do: "p-10"
+  defp padding_class(12), do: "p-12"
+  defp padding_class(_), do: "p-6"
 end

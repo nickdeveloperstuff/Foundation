@@ -11,11 +11,23 @@ defmodule FoundationWeb.Components.Widgets.Button do
 
   def button_widget(assigns) do
     ~H"""
-    <div class={[
-      @span && "span-#{@span}",
-      "flex",
-      align_class(@align)
-    ]}>
+    <%= if @span do %>
+      <div class={[
+        "span-#{@span}",
+        "flex",
+        align_class(@align)
+      ]}>
+        <button class={[
+          "btn",
+          "btn-#{@variant}",
+          "btn-#{@size}",
+          spacing_class(@size),
+          @class
+        ]} {@rest}>
+          {render_slot(@inner_block)}
+        </button>
+      </div>
+    <% else %>
       <button class={[
         "btn",
         "btn-#{@variant}",
@@ -25,7 +37,7 @@ defmodule FoundationWeb.Components.Widgets.Button do
       ]} {@rest}>
         {render_slot(@inner_block)}
       </button>
-    </div>
+    <% end %>
     """
   end
 

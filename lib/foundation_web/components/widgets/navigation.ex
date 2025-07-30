@@ -11,26 +11,29 @@ defmodule FoundationWeb.Components.Widgets.Navigation do
 
   def navigation_widget(assigns) do
     ~H"""
-    <div class={["navbar bg-base-100 px-6", @class]}>
-      <div class="navbar-start">
-        <div class="text-xl font-bold">{@brand}</div>
+    <nav class={["flex flex-col h-full", @class]}>
+      <div class="mb-8">
+        <h1 class="text-xl font-bold">{@brand}</h1>
       </div>
-      <div class="navbar-center hidden lg:flex">
-        <ul class="menu menu-horizontal gap-2">
-          <li :for={item <- @nav_item}>
-            <.link 
-              navigate={item[:path]} 
-              class={item[:active] && "active"}
-            >
-              {render_slot(item)}
-            </.link>
-          </li>
-        </ul>
-      </div>
-      <div :if={@actions != []} class="navbar-end gap-4">
+      
+      <ul class="menu menu-vertical gap-1 flex-1">
+        <li :for={item <- @nav_item}>
+          <.link 
+            navigate={item[:path]} 
+            class={[
+              "rounded-lg hover:bg-base-300",
+              item[:active] && "bg-primary text-primary-content hover:bg-primary"
+            ]}
+          >
+            {render_slot(item)}
+          </.link>
+        </li>
+      </ul>
+      
+      <div :if={@actions != []} class="mt-auto pt-4 border-t border-base-300">
         {render_slot(@actions)}
       </div>
-    </div>
+    </nav>
     """
   end
 end

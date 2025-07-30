@@ -7,8 +7,10 @@ defmodule FoundationWeb.Components.LayoutWidgets do
 
   def grid_layout(assigns) do
     ~H"""
-    <div class={["layout-full grid-12 p-6 @container", @class]}>
-      {render_slot(@inner_block)}
+    <div class={["w-full @container", @class]}>
+      <div class="grid grid-cols-12 gap-6 md:gap-8 lg:gap-10">
+        {render_slot(@inner_block)}
+      </div>
     </div>
     """
   end
@@ -20,11 +22,11 @@ defmodule FoundationWeb.Components.LayoutWidgets do
 
   def dashboard_layout(assigns) do
     ~H"""
-    <div class={["layout-full grid grid-cols-12 @container", @class]}>
-      <aside class="col-span-3 bg-base-200 p-6">
+    <div class={["layout-full grid grid-cols-[280px_1fr] @container", @class]}>
+      <aside class="bg-base-200 p-6 min-h-screen">
         {render_slot(@sidebar)}
       </aside>
-      <main class="col-span-9 p-6">
+      <main class="p-6 overflow-auto">
         {render_slot(@inner_block)}
       </main>
     </div>
