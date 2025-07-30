@@ -609,86 +609,9 @@ This plan implements a custom UI system based on your requirements:
   ```
 - **Test**: Use new spacing utilities in a test component, verify they compile correctly
 
-### Phase 5: Documentation & Examples
+### Phase 5: Documentation
 
-#### 18. Create widget documentation
-- **Path**: `lib/foundation_web/storybook/widgets/`
-- **Implementation for each widget**:
-  ```elixir
-  defmodule FoundationWeb.Storybook.Widgets.ButtonDoc do
-    use Phoenix.LiveView
-
-    def render(assigns) do
-      ~H"""
-      <div class="p-8">
-        <h1 class="text-2xl font-bold mb-8">Button Widget</h1>
-        
-        <section class="mb-12">
-          <h2 class="text-xl font-semibold mb-4">Sizes</h2>
-          <div class="flex gap-4">
-            <.button_widget size="sm">Small</.button_widget>
-            <.button_widget size="md">Medium</.button_widget>
-            <.button_widget size="lg">Large</.button_widget>
-          </div>
-        </section>
-
-        <section class="mb-12">
-          <h2 class="text-xl font-semibold mb-4">Grid Spans</h2>
-          <div class="grid grid-cols-12 gap-4">
-            <.button_widget span={3}>Span 3</.button_widget>
-            <.button_widget span={6}>Span 6</.button_widget>
-            <.button_widget span={3}>Span 3</.button_widget>
-          </div>
-        </section>
-      </div>
-      """
-    end
-  end
-  ```
-- **Test**: Navigate to each documentation page, verify examples render correctly
-
-#### 19. Create layout examples
-- **Path**: `lib/foundation_web/storybook/layouts/`
-- **Dashboard Example**:
-  ```elixir
-  defmodule FoundationWeb.Storybook.Layouts.DashboardExample do
-    use Phoenix.LiveView
-    
-    def render(assigns) do
-      ~H"""
-      <.dashboard_layout>
-        <:sidebar>
-          <.navigation_widget brand="Dashboard">
-            <:nav_item path="/dashboard" active>Overview</:nav_item>
-            <:nav_item path="/users">Users</:nav_item>
-            <:nav_item path="/settings">Settings</:nav_item>
-          </.navigation_widget>
-        </:sidebar>
-        
-        <.grid_layout>
-          <.card_widget span={4}>
-            <:header>Total Users</:header>
-            <div class="text-3xl font-bold">1,234</div>
-          </.card_widget>
-          
-          <.card_widget span={4}>
-            <:header>Active Sessions</:header>
-            <div class="text-3xl font-bold">89</div>
-          </.card_widget>
-          
-          <.card_widget span={4}>
-            <:header>Revenue</:header>
-            <div class="text-3xl font-bold">$12,345</div>
-          </.card_widget>
-        </.grid_layout>
-      </.dashboard_layout>
-      """
-    end
-  end
-  ```
-- **Test**: Each example should be fully functional and demonstrate proper spacing/alignment
-
-#### 20. Create implementation guide
+#### 18. Create implementation guide
 - **Path**: `WIDGET_IMPLEMENTATION.md`
 - **Content**:
   ```markdown
@@ -764,9 +687,6 @@ foundation/
 │       │       ├── table.ex (new)
 │       │       ├── modal.ex (new)
 │       │       └── navigation.ex (new)
-│       └── storybook/
-│           ├── widgets/ (new)
-│           └── layouts/ (new)
 ├── UI_IMPLEMENTATION.md (this file)
 └── WIDGET_IMPLEMENTATION.md (new)
 ```

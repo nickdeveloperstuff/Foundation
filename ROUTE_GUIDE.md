@@ -147,7 +147,6 @@ This happens automatically via `root.html.heex` and APP.CSS - no setup needed, A
 
 ### Common Issues:
 - **`live/` directory doesn't exist**: Create it with `mkdir -p lib/foundation_web/live`
-- **Pre-existing compilation errors**: The project may have storybook files with compilation issues that prevent testing. These are unrelated to your new route.
 - **Module name mismatch**: Ensure your module name matches the pattern: `FoundationWeb.YourLive` (not `DemostarterWeb`)
 
 ### File Naming Examples:
