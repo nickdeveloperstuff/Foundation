@@ -2,6 +2,8 @@ defmodule FoundationWeb.Components.Widgets.TaskForm do
   use Phoenix.Component
   import FoundationWeb.Components.Widgets.Input
   import FoundationWeb.Components.Widgets.Button
+  import Phoenix.HTML.Form
+  import FoundationWeb.CoreComponents, only: [translate_error: 1]
   
   attr :form, :any, required: true
   attr :data_source, :atom, default: :static
@@ -18,11 +20,13 @@ defmodule FoundationWeb.Components.Widgets.TaskForm do
         <!-- Title Field -->
         <div>
           <.input_widget
-            name="task[title]"
+            name={input_name(@form, :title)}
             label="Task Title"
             placeholder="Enter task title"
-            value={@form["title"]}
           />
+          <%= for error <- @form.errors[:title] || [] do %>
+            <p class="text-error text-sm mt-1">{translate_error(error)}</p>
+          <% end %>
         </div>
         
         <!-- Description Field -->
@@ -31,11 +35,14 @@ defmodule FoundationWeb.Components.Widgets.TaskForm do
             <span class="label-text">Description</span>
           </label>
           <textarea
-            name="task[description]"
+            name={input_name(@form, :description)}
             class="textarea textarea-bordered w-full"
             placeholder="Describe the task (optional)"
             rows="3"
-          >{@form["description"]}</textarea>
+          >{input_value(@form, :description)}</textarea>
+          <%= for error <- @form.errors[:description] || [] do %>
+            <p class="text-error text-sm mt-1">{translate_error(error)}</p>
+          <% end %>
         </div>
         
         <!-- Status Field -->
@@ -43,11 +50,14 @@ defmodule FoundationWeb.Components.Widgets.TaskForm do
           <label class="label pb-2">
             <span class="label-text">Status</span>
           </label>
-          <select name="task[status]" class="select select-bordered w-full">
-            <option value="pending" selected={@form["status"] == "pending"}>Pending</option>
-            <option value="in_progress" selected={@form["status"] == "in_progress"}>In Progress</option>
-            <option value="completed" selected={@form["status"] == "completed"}>Completed</option>
+          <select name={input_name(@form, :status)} class="select select-bordered w-full">
+            <option value="pending" selected={input_value(@form, :status) == :pending}>Pending</option>
+            <option value="in_progress" selected={input_value(@form, :status) == :in_progress}>In Progress</option>
+            <option value="completed" selected={input_value(@form, :status) == :completed}>Completed</option>
           </select>
+          <%= for error <- @form.errors[:status] || [] do %>
+            <p class="text-error text-sm mt-1">{translate_error(error)}</p>
+          <% end %>
         </div>
         
         <!-- Priority Field -->
@@ -55,12 +65,15 @@ defmodule FoundationWeb.Components.Widgets.TaskForm do
           <label class="label pb-2">
             <span class="label-text">Priority</span>
           </label>
-          <select name="task[priority]" class="select select-bordered w-full">
-            <option value="low" selected={@form["priority"] == "low"}>Low</option>
-            <option value="medium" selected={@form["priority"] == "medium"}>Medium</option>
-            <option value="high" selected={@form["priority"] == "high"}>High</option>
-            <option value="urgent" selected={@form["priority"] == "urgent"}>Urgent</option>
+          <select name={input_name(@form, :priority)} class="select select-bordered w-full">
+            <option value="low" selected={input_value(@form, :priority) == :low}>Low</option>
+            <option value="medium" selected={input_value(@form, :priority) == :medium}>Medium</option>
+            <option value="high" selected={input_value(@form, :priority) == :high}>High</option>
+            <option value="urgent" selected={input_value(@form, :priority) == :urgent}>Urgent</option>
           </select>
+          <%= for error <- @form.errors[:priority] || [] do %>
+            <p class="text-error text-sm mt-1">{translate_error(error)}</p>
+          <% end %>
         </div>
         
         <!-- Form Actions -->

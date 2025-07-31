@@ -48,15 +48,37 @@ defmodule Foundation.TaskManager.Task do
     # Basic CRUD operations
     defaults [:read, :destroy]
     
-    # Custom create action with specific fields
+    # Custom create action with validations
     create :create do
       accept [:title, :description, :status, :priority]
+      
+      # Title is required and must be at least 3 characters
+      validate string_length(:title, min: 3) do
+        message "must be at least 3 characters long"
+      end
+      
+      # If priority is urgent, status cannot be completed
+      validate fn changeset, _context ->
+        status = Ash.Changeset.get_attribute(changeset, :status)
+        priority = Ash.Changeset.get_attribute(changeset, :priority)
+        
+        if priority == :urgent && status == :completed do
+          {:error, field: :status, message: "cannot be completed for urgent priority tasks"}
+        else
+          :ok
+        end
+      end
     end
     
     # Custom update action
     update :update do
       accept [:title, :description, :status, :priority]
       require_atomic? false
+      
+      # Same validation for title
+      validate string_length(:title, min: 3) do
+        message "must be at least 3 characters long"
+      end
       
       # When status changes to completed, set completed_at
       change fn changeset, _context ->

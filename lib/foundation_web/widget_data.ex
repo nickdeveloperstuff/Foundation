@@ -67,4 +67,67 @@ defmodule FoundationWeb.WidgetData do
   def test_module do
     {:ok, "WidgetData module loaded successfully!"}
   end
+
+  @doc """
+  Fetch task statistics from the database
+  """
+  def fetch_task_statistics do
+    tasks = Ash.read!(Foundation.TaskManager.Task)
+    
+    %{
+      total_tasks: length(tasks),
+      completed_tasks: Enum.count(tasks, & &1.status == :completed),
+      in_progress_tasks: Enum.count(tasks, & &1.status == :in_progress),
+      urgent_tasks: Enum.count(tasks, & &1.priority == :urgent)
+    }
+  end
+  
+  @doc """
+  Fetch recent tasks from the database
+  """
+  def fetch_recent_tasks do
+    Foundation.TaskManager.Task
+    |> Ash.Query.sort(inserted_at: :desc)
+    |> Ash.Query.limit(20)
+    |> Ash.read!()
+  end
+  
+  @doc """
+  Assign task data to socket
+  """
+  def assign_task_data(socket, :static) do
+    # Return socket unchanged for static data
+    socket
+  end
+  
+  def assign_task_data(socket, :ash) do
+    stats = fetch_task_statistics()
+    tasks = fetch_recent_tasks()
+    
+    socket
+    |> Phoenix.Component.assign(:tasks, tasks)
+    |> Phoenix.Component.assign(:total_tasks, stats.total_tasks)
+    |> Phoenix.Component.assign(:completed_tasks, stats.completed_tasks)
+    |> Phoenix.Component.assign(:in_progress_tasks, stats.in_progress_tasks)
+    |> Phoenix.Component.assign(:urgent_tasks, stats.urgent_tasks)
+  end
+
+  @doc """
+  Broadcast task updates to all connected clients
+  """
+  def broadcast_task_update(action) when action in [:created, :updated, :deleted] do
+    stats = fetch_task_statistics()
+    tasks = fetch_recent_tasks()
+    
+    data = %{
+      tasks: tasks,
+      total_tasks: stats.total_tasks,
+      completed_tasks: stats.completed_tasks,
+      in_progress_tasks: stats.in_progress_tasks,
+      urgent_tasks: stats.urgent_tasks,
+      action: action
+    }
+    
+    broadcast_update(:task_updates, data)
+  end
 end

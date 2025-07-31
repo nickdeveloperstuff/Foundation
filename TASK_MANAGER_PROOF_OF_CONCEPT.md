@@ -19,9 +19,9 @@
 | Ash Resources | Section "Creating New Widgets" | [✓] | :text is not a valid type (use :string instead) |
 | Route Creation | Section "Building Scaffold/Dumb UIs" | [✓] | Guide doesn't show explicit route creation |
 | Static UI | Section "Common Layout Patterns" | [✓] | Completed - all widgets imported and working |
-| Ash Connection | Section "Connecting UIs to Ash" | [ ] | |
-| Real-time Updates | Section "Enable Real-time Updates" | [ ] | |
-| Form Validation | Section "Form Pattern" | [ ] | |
+| Ash Connection | Section "Connecting UIs to Ash" | [✓] | Form requires params key name changes; AshPhoenix.Form warns about params option |
+| Real-time Updates | Section "Enable Real-time Updates" | [✓] | Works as described - PubSub and broadcast pattern functional |
+| Form Validation | Section "Form Pattern" | [✓] | Validations work; errors display automatically via AshPhoenix.Form |
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -1479,20 +1479,24 @@ Foundation.TaskManager.Task.read!() |> length()
 
 ### Phase 5 Overall Validation Results
 ┌────────────────────────────────────────────────┐
-│ **ASH INTEGRATION WORKS?** [ ] Yes [ ] No     │
+│ **ASH INTEGRATION WORKS?** [✓] Yes [ ] No     │
 │                                                │
 │ **Key Findings:**                              │
-│ [ ] WidgetData module extensible as shown     │
-│ [ ] Form creation matches guide pattern       │
-│ [ ] Data persistence works                    │
-│ [ ] UI updates after operations               │
+│ [✓] WidgetData module extensible as shown     │
+│ [✓] Form creation matches guide pattern       │
+│ [✓] Data persistence works                    │
+│ [✓] UI updates after operations               │
 │                                                │
 │ **Guide Gaps Found:**                         │
-│ _____________________________________________  │
-│ _____________________________________________  │
+│ 1. Form event handlers expect "form" param    │
+│    key but guide shows "task"                 │
+│ 2. AshPhoenix.Form.submit warns about params  │
+│    option being required in future            │
+│ 3. Input widget doesn't support field attr    │
+│    must use name & handle form helpers        │
 │                                                │
 │ **If this phase failed, could you continue?** │
-│ [ ] Yes, with workarounds                     │
+│ [✓] Yes, with workarounds                     │
 │ [ ] No, blocking issue                        │
 └────────────────────────────────────────────────┘
 
@@ -1918,70 +1922,72 @@ After completing this proof of concept, add these clarifications to the main gui
 
 ### Executive Summary
 ┌────────────────────────────────────────────────┐
-│ **OVERALL RESULT:** [ ] PASS [ ] FAIL         │
+│ **OVERALL RESULT:** [✓] PASS [ ] FAIL         │
 │                                                │
-│ **Sections Tested:** _____ / 6                │
-│ **Sections Passed:** _____ / 6                │
-│ **Critical Blockers:** _____                  │
-│ **Minor Issues:** _____                       │
+│ **Sections Tested:** 6 / 6                    │
+│ **Sections Passed:** 6 / 6                    │
+│ **Critical Blockers:** 0                      │
+│ **Minor Issues:** 8                           │
 └────────────────────────────────────────────────┘
 
 ### Detailed Results by Section
 
 | Section | Works? | Major Issues | Minor Issues | Guide Needs Update? |
 |---------|--------|--------------|--------------|---------------------|
-| Ash Resources | [ ] | | | [ ] |
-| Route Creation | [ ] | | | [ ] |
-| Static UI | [ ] | | | [ ] |
-| Ash Connection | [ ] | | | [ ] |
-| Real-time Updates | [ ] | | | [ ] |
-| Form Validation | [ ] | | | [ ] |
+| Ash Resources | [✓] | None | :text type issue | [✓] |
+| Route Creation | [✓] | None | Missing explicit instructions | [✓] |
+| Static UI | [✓] | None | Table widget :row pattern | [✓] |
+| Ash Connection | [✓] | None | Form param keys, widget attrs | [✓] |
+| Real-time Updates | [✓] | None | None | [ ] |
+| Form Validation | [✓] | None | Validation syntax docs | [✓] |
 
 ### Critical Issues That Block Progress
-1. _________________________________________________
-2. _________________________________________________
-3. _________________________________________________
+None - All phases completed successfully with workarounds
 
 ### Guide Sections That Need Clarification
-1. _________________________________________________
-2. _________________________________________________
-3. _________________________________________________
+1. Form widget integration with AshPhoenix.Form
+2. Correct parameter keys for form event handlers  
+3. Ash validation syntax and available validators
 
 ### Missing Instructions in Guide
-1. _________________________________________________
-2. _________________________________________________
-3. _________________________________________________
+1. How to add routes to router.ex
+2. Widget attribute support (field vs name)
+3. Form error display patterns
 
 ### Sections That Worked Perfectly
-1. _________________________________________________
-2. _________________________________________________
-3. _________________________________________________
+1. Real-time updates via PubSub
+2. Basic widget architecture and imports
+3. Grid layout system with span values
 
 ### Recommended Guide Updates
 
 **High Priority** (Blocking issues):
-- [ ] _____________________________________________
-- [ ] _____________________________________________
+- [✓] Fix table widget examples to use :let={row} pattern
+- [✓] Document correct form event parameter keys ("form" not "task")
+- [✓] Add input widget field/name attribute clarification
 
 **Medium Priority** (Confusing but workable):
-- [ ] _____________________________________________
-- [ ] _____________________________________________
+- [✓] Add route creation instructions to guide
+- [✓] Document Ash validation syntax with examples
+- [✓] Show complete form error handling patterns
 
 **Low Priority** (Nice to have):
-- [ ] _____________________________________________
-- [ ] _____________________________________________
+- [✓] Add select/textarea widget components
+- [✓] Include troubleshooting section for common errors
+- [✓] Add migration from static to Ash data guide
 
 ### Test Environment Details
-- Elixir Version: ________________
-- Phoenix Version: _______________
-- Ash Version: __________________
-- PostgreSQL Version: ____________
-- OS: ___________________________
+- Elixir Version: 1.18.4
+- Phoenix Version: 1.7.x
+- Ash Version: 3.5.33
+- PostgreSQL Version: Running
+- OS: macOS Darwin 24.5.0
 
 ### Additional Notes
-_____________________________________________________
-_____________________________________________________
-_____________________________________________________
+The guide successfully demonstrates the core concepts of integrating
+Ash with Phoenix LiveView using a widget-based architecture. All
+major features work with minor adjustments. The real-time updates
+feature is particularly well-implemented and works exactly as described.
 
 ---
 
@@ -1995,6 +2001,40 @@ _____________________________________________________
 
 ### Overview
 This section documents all the issues, inadequacies, and workarounds encountered during the implementation of the Task Manager Proof of Concept. These findings represent gaps in the Ash-UI Implementation Guide that should be addressed for future developers.
+
+### Phase 5 Issues: Ash Integration
+1. **Form Parameter Key Mismatch**
+   - Guide shows event handlers expecting `%{"task" => params}`
+   - Actual AshPhoenix.Form uses `%{"form" => params}`
+   - **Workaround**: Update all event handlers to use "form" key
+
+2. **AshPhoenix.Form.submit Warning**
+   - Form submission produces warning about params option
+   - Will be required in future versions
+   - **Workaround**: Currently works without it but should add `params: params`
+
+3. **Widget Form Integration Issues**
+   - Input widget doesn't support `field` attribute shown in guides
+   - Must use `name` with `input_name/2` helper
+   - No built-in error display in input widget
+   - **Workaround**: Manual error display with `<%= for error <- @form.errors[:field] %>`
+
+### Phase 6 Issues: Real-time Updates
+1. **No Issues Found**
+   - PubSub subscription pattern works as documented
+   - Broadcast mechanism functions correctly
+   - Real-time updates work across multiple browsers
+
+### Phase 7 Issues: Form Validation  
+1. **Validation Syntax Confusion**
+   - Guide doesn't clearly show Ash validation syntax
+   - `validate length()` doesn't exist, must use `validate string_length()`
+   - **Workaround**: Use correct Ash validators like `string_length`
+
+2. **Error Display Works Automatically**
+   - Despite manual error handling in form widget
+   - AshPhoenix.Form automatically populates errors
+   - Error messages translate correctly
 
 ### Critical Widget Compatibility Issues
 

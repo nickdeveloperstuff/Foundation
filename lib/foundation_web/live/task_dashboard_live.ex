@@ -15,15 +15,20 @@ defmodule FoundationWeb.TaskDashboardLive do
   alias Phoenix.LiveView.JS
   
   def mount(_params, _session, socket) do
-    # Start with static data
-    data_source = :static
+    # Switch to Ash data
+    data_source = :ash  # Changed from :static
+    
+    # Subscribe to updates if connected
+    if connected?(socket) && data_source == :ash do
+      WidgetData.subscribe_to_updates([:task_updates])
+    end
     
     socket = 
       socket
       |> assign(:data_source, data_source)
       |> assign(:debug_mode, true)  # Shows data source on widgets
       |> assign(:show_task_modal, false)  # Modal visibility state
-      |> assign_static_data()
+      |> load_task_data(data_source)  # Changed this line
       
     {:ok, socket}
   end
@@ -181,7 +186,7 @@ defmodule FoundationWeb.TaskDashboardLive do
           title="Create New Task"
         >
           <.task_form_widget 
-            form={to_form(@task_form || create_task_form(), as: :task)}
+            form={@task_form || create_task_form()}
             data_source={@data_source}
             debug_mode={@debug_mode}
           />
@@ -218,12 +223,16 @@ defmodule FoundationWeb.TaskDashboardLive do
   
   # Create a simple form for static data
   defp create_task_form() do
-    %{
-      "title" => "",
-      "description" => "",
-      "status" => "pending",
-      "priority" => "medium"
-    }
+    Foundation.TaskManager.Task
+    |> AshPhoenix.Form.for_create(:create)
+  end
+  
+  defp load_task_data(socket, :static) do
+    assign_static_data(socket)
+  end
+  
+  defp load_task_data(socket, :ash) do
+    WidgetData.assign_task_data(socket, :ash)
   end
   
   # Event Handlers
@@ -246,16 +255,56 @@ defmodule FoundationWeb.TaskDashboardLive do
   end
   
   # Handle form validation (for now, just keep the form data)
-  def handle_event("validate_task", %{"task" => params}, socket) do
-    {:noreply, assign(socket, :task_form, params)}
+  def handle_event("validate_task", %{"form" => params}, socket) do
+    form = 
+      socket.assigns.task_form
+      |> AshPhoenix.Form.validate(params)
+    
+    {:noreply, assign(socket, :task_form, form)}
   end
   
   # Handle form submission
-  def handle_event("save_task", %{"task" => params}, socket) do
-    # For now, just close the modal
-    # We'll implement actual saving in Phase 5
-    IO.puts("Task would be saved: #{inspect(params)}")
+  def handle_event("save_task", %{"form" => params}, socket) do
+    form = 
+      socket.assigns.task_form
+      |> AshPhoenix.Form.validate(params)
     
-    {:noreply, assign(socket, :show_task_modal, false)}
+    case AshPhoenix.Form.submit(form) do
+      {:ok, _task} ->
+        # Broadcast the update to all connected clients
+        WidgetData.broadcast_task_update(:created)
+        
+        socket = 
+          socket
+          |> assign(:show_task_modal, false)
+          |> put_flash(:info, "Task created successfully!")
+        
+        {:noreply, socket}
+        
+      {:error, form} ->
+        {:noreply, assign(socket, :task_form, form)}
+    end
+  end
+  
+  # Handle real-time updates
+  def handle_info({:widget_data_updated, :task_updates, data}, socket) do
+    socket = 
+      socket
+      |> assign(:tasks, data.tasks)
+      |> assign(:total_tasks, data.total_tasks)
+      |> assign(:completed_tasks, data.completed_tasks)
+      |> assign(:in_progress_tasks, data.in_progress_tasks)
+      |> assign(:urgent_tasks, data.urgent_tasks)
+    
+    # Show a notification for actions from other users
+    socket = 
+      case data.action do
+        :created -> put_flash(socket, :info, "New task added")
+        :updated -> put_flash(socket, :info, "Task updated")
+        :deleted -> put_flash(socket, :info, "Task deleted")
+        _ -> socket
+      end
+    
+    {:noreply, socket}
   end
 end
