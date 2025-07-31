@@ -1,6 +1,8 @@
 defmodule FoundationWeb.TesterDemoLive do
   use FoundationWeb, :live_view
   
+  alias FoundationWeb.WidgetData
+  
   import FoundationWeb.Components.Widgets.Button
   import FoundationWeb.Components.Widgets.Card
   import FoundationWeb.Components.Widgets.Input
@@ -17,13 +19,32 @@ defmodule FoundationWeb.TesterDemoLive do
   import FoundationWeb.Components.LayoutWidgets
   
   def mount(_params, _session, socket) do
+    # Start with static data to ensure compatibility
+    data_source = :ash  # Change this to :static to use hardcoded data
+    
+    # Subscribe to updates if using Ash
+    if data_source == :ash do
+      WidgetData.subscribe_to_updates([:kpi, :activities])
+    end
+    
     socket = 
       socket
       |> assign(:active_page, "dashboard")
-      |> assign(:kpi_data, generate_kpi_data())
-      |> assign(:recent_activities, generate_activities())
-      |> assign(:user_stats, generate_user_stats())
+      |> assign(:data_source, data_source)
+      |> assign(:debug_mode, true)  # Set to false to hide debug info
     
+    socket = 
+      if data_source == :ash do
+        socket
+        |> WidgetData.assign_widget_data(:ash)
+        |> assign(:user_stats, generate_user_stats())
+      else
+        socket
+        |> assign(:kpi_data, generate_kpi_data())
+        |> assign(:recent_activities, generate_activities())
+        |> assign(:user_stats, generate_user_stats())
+      end
+      
     {:ok, socket}
   end
   
@@ -74,6 +95,8 @@ defmodule FoundationWeb.TesterDemoLive do
             change={"+#{@kpi_data.revenue_growth}%"}
             change_label="this month"
             trend="up"
+            data_source={@data_source}
+            debug_mode={@debug_mode}
           />
         </.card_widget>
         
@@ -84,6 +107,8 @@ defmodule FoundationWeb.TesterDemoLive do
             change={"+#{@kpi_data.user_growth}%"}
             change_label="this month"
             trend="up"
+            data_source={@data_source}
+            debug_mode={@debug_mode}
           />
         </.card_widget>
         
@@ -94,6 +119,8 @@ defmodule FoundationWeb.TesterDemoLive do
             change={to_string(@kpi_data.signup_rate)}
             change_label="per day avg"
             trend="neutral"
+            data_source={@data_source}
+            debug_mode={@debug_mode}
           />
         </.card_widget>
         
@@ -104,6 +131,8 @@ defmodule FoundationWeb.TesterDemoLive do
             change="-#{@kpi_data.churn_change}%"
             change_label="vs last month"
             trend="down"
+            data_source={@data_source}
+            debug_mode={@debug_mode}
           />
         </.card_widget>
         
@@ -238,6 +267,14 @@ defmodule FoundationWeb.TesterDemoLive do
       pro: 387,
       enterprise: 70
     }
+  end
+  
+  def handle_info({:widget_data_updated, :kpi, data}, socket) do
+    {:noreply, assign(socket, :kpi_data, data)}
+  end
+
+  def handle_info({:widget_data_updated, :activities, data}, socket) do
+    {:noreply, assign(socket, :recent_activities, data)}
   end
   
   defp badge_variant("success"), do: "success"

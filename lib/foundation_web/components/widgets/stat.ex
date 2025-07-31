@@ -9,13 +9,22 @@ defmodule FoundationWeb.Components.Widgets.Stat do
   attr :span, :integer, default: nil
   attr :size, :string, default: "md" # "sm", "md", "lg"
   attr :class, :string, default: ""
+  attr :data_source, :atom, default: :static
+  attr :resource_id, :string, default: nil
+  attr :refresh_interval, :integer, default: nil
+  attr :debug_mode, :boolean, default: false
   
   def stat_widget(assigns) do
     ~H"""
     <div class={[
       @span && "span-#{@span}",
-      @class
+      @class,
+      "relative"
     ]}>
+      <div :if={@debug_mode} class="absolute top-1 right-1 text-xs px-1 bg-base-300 rounded">
+        {@data_source}
+      </div>
+      
       <div :if={@label} class={label_class(@size)}>
         {@label}
       </div>
