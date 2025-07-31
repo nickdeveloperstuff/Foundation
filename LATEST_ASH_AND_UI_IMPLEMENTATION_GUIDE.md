@@ -21,39 +21,28 @@ This guide provides a comprehensive walkthrough of the Ash-Widget integration sy
 
 ## Architecture Overview
 
-### Data Flow Diagram
+### Data Flow Diagram [TBD]
 ```
-                    ┌──────────────┐
-                    │ Ash Resource │
-                    │   (Data)     │
-                    └──────┬───────┘
-                           │ 
-                           │ read/query
-                           ▼
-                    ┌──────────────┐
-                    │  WidgetData  │
-                    │  (Data Hub)  │
-                    └──────┬───────┘
-                           │
-                           │ fetch & transform
-                           ▼
-┌─────────────┐     ┌──────────────┐     ┌────────────────┐
-│   Widget    │ ◄── │   LiveView   │ ──► │     PubSub     │
-│  (Dumb UI)  │     │(Orchestrator)│     │  (Real-time)   │
-└─────────────┘     └──────┬───────┘     └────────┬───────┘
-    receives               │                       │
-    props/data             │ subscribes           │ broadcasts
-                           └───────────────────────┘
-                               handle_info
 
 Data Flow Summary:
-1. LiveView calls WidgetData.assign_widget_data()
-2. WidgetData fetches from Ash Resources
-3. LiveView passes data as props to Widgets
-4. LiveView subscribes to PubSub topics
-5. External updates trigger WidgetData.broadcast_update()
-6. PubSub notifies LiveView via handle_info
-7. LiveView updates state and re-renders Widgets
+1. Initial Load:
+   - LiveView calls WidgetData.assign_widget_data()
+   - WidgetData queries Ash Resources
+   - Ash Resources fetch from Database
+   - Data flows back to LiveView → Widgets
+
+2. Real-time Updates:
+   - Database changes OR user actions OR scheduled jobs occur
+   - Update process (GenServer/Hook/Controller) detects change
+   - Process calls WidgetData.broadcast_update(:topic, new_data)
+   - PubSub broadcasts to all subscribers
+   - LiveView receives via handle_info({:widget_data_updated, ...})
+   - LiveView updates assigns and re-renders Widgets
+
+3. Subscriptions:
+   - LiveView subscribes to PubSub topics on mount
+   - Multiple LiveViews can subscribe to same topics
+   - Updates broadcast to all connected clients simultaneously
 ```
 
 ### Key Concepts:
