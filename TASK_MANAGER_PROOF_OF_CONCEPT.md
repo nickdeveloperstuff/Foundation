@@ -1991,6 +1991,143 @@ feature is particularly well-implemented and works exactly as described.
 
 ---
 
+## Actual Implementation Workarounds & Recommendations
+
+### Workarounds Required During Implementation
+
+1. **Form Event Handler Parameters**
+   ```elixir
+   # Guide shows:
+   def handle_event("save_task", %{"task" => params}, socket)
+   
+   # Actually needed:
+   def handle_event("save_task", %{"form" => params}, socket)
+   ```
+
+2. **Form Field Handling**
+   ```elixir
+   # Guide implies widgets support field attribute:
+   <.input_widget field={@form[:title]} />
+   
+   # Actually needed:
+   <.input_widget 
+     name={input_name(@form, :title)}
+     label="Task Title"
+     placeholder="Enter task title"
+   />
+   ```
+
+3. **Select and Textarea Elements**
+   - No select or textarea widgets exist
+   - Had to use raw HTML with manual option selection logic
+   - Lost the widget consistency for these form elements
+
+4. **Error Display**
+   ```elixir
+   # Had to manually add after each field:
+   <%= for error <- @form.errors[:title] || [] do %>
+     <p class="text-error text-sm mt-1">{translate_error(error)}</p>
+   <% end %>
+   ```
+
+5. **Validation Syntax**
+   ```elixir
+   # Tried (following typical patterns):
+   validate length(:title, min: 3)
+   
+   # Actually needed:
+   validate string_length(:title, min: 3)
+   ```
+
+### Unexpected Behaviors Not in Guide
+
+1. **AshPhoenix.Form.submit Warning**
+   - Produces deprecation warning about `params` option
+   - Still works but will break in future versions
+   - Guide should show: `AshPhoenix.Form.submit(form, params: params)`
+
+2. **Input Widget Limitations**
+   - Doesn't support `value` attribute (warning in compilation)
+   - Yet form values still populate correctly through Phoenix's form system
+   - Creates confusion about how data binding actually works
+
+3. **Double Error Handling**
+   - Manually added error display in form widget
+   - AshPhoenix.Form already handles errors automatically
+   - Results in potential duplicate error messages
+
+### Recommendations for the Guide
+
+1. **Add Explicit Route Creation Section**
+   ```elixir
+   # In router.ex
+   scope "/", FoundationWeb do
+     pipe_through :browser
+     
+     live "/task-dashboard", TaskDashboardLive  # Add this
+   end
+   ```
+
+2. **Show Correct Form Integration Pattern**
+   - Document that AshPhoenix.Form events use "form" key
+   - Explain input_name/2 and input_value/2 helpers
+   - Show complete error handling pattern
+
+3. **Include Validation Examples**
+   ```elixir
+   # Common validators:
+   validate string_length(:field, min: 3, max: 100)
+   validate one_of(:status, [:draft, :published])
+   validate present(:email)
+   ```
+
+### Recommendations for the Repository
+
+1. **Enhance Input Widget**
+   ```elixir
+   # Support both patterns:
+   attr :field, Phoenix.HTML.FormField  # For form integration
+   attr :name, :string                  # For manual forms
+   attr :value, :string                 # For controlled inputs
+   ```
+
+2. **Add Missing Form Widgets**
+   - Create select_widget with same styling/debug features
+   - Create textarea_widget for consistency
+   - Consider radio_widget and checkbox_widget
+
+3. **Create Form-Aware Widgets**
+   ```elixir
+   # New widget that handles AshPhoenix.Form integration:
+   def ash_input_widget(assigns) do
+     ~H"""
+     <div>
+       <.input_widget
+         name={input_name(@form, @field)}
+         value={input_value(@form, @field)}
+         {@rest}
+       />
+       <.error_display form={@form} field={@field} />
+     </div>
+     """
+   end
+   ```
+
+4. **Standardize Widget Props**
+   - All widgets should support debug_mode and data_source
+   - Consider a widget_base function for consistent behavior
+   - Document which attributes each widget actually supports
+
+5. **Improve Modal Widget**
+   - The modal works but guide shows `on_close` attribute that doesn't exist
+   - Either add the attribute or update documentation
+
+### Final Note
+
+Despite these issues, the architecture is sound and the approach works well. The real-time features are particularly elegant. With these improvements, the gap between guide and implementation would be minimal, making it much easier for developers to follow along successfully.
+
+---
+
 ## Validation Completed ✓
 
 **Remember**: The goal was to validate the guide, not build a perfect app. If you found issues, you've succeeded in improving the documentation for future developers!
@@ -2215,3 +2352,66 @@ Despite the issues, several things worked well:
 The Ash-UI Implementation Guide provides a good conceptual framework but has significant gaps in practical implementation details. The widget system is incomplete, with basic form elements missing and documentation/implementation mismatches. Developers following this guide will need to discover several workarounds independently, which defeats the purpose of a comprehensive guide.
 
 The proof of concept is achievable but requires deviating from the guide's implied widget-only approach in several places. Future versions should either complete the widget system or clearly document when and how to fall back to standard HTML elements.
+
+---
+
+## Implementation Issues and Recommendations
+
+### Workarounds Required
+
+1. **Ash Resource Attribute Types**
+   - **Issue**: Guide shows `attribute :description, :text` but `:text` is not a valid Ash type
+   - **Workaround**: Changed to `attribute :description, :string`
+   - **Recommendation**: Update guide to use correct Ash types or implement :text type support
+
+2. **Table Widget Row Access**
+   - **Issue**: Guide examples show `{@row.field}` syntax within table columns
+   - **Workaround**: Must use `:let={row}` in column definition and `{row.field}` syntax
+   - **Recommendation**: Update guide examples to show correct table widget usage pattern
+
+3. **Modal Widget Attributes**
+   - **Issue**: Guide implies modal widget has `on_close` attribute, but it doesn't exist
+   - **Workaround**: Removed the attribute; modal handles closing through form backdrop
+   - **Recommendation**: Either add `on_close` support to modal widget or update guide
+
+4. **Input Widget Limitations**
+   - **Issue**: Input widget expects `name` attribute not `field`, doesn't support select/textarea types
+   - **Workaround**: Used raw HTML `<select>` and `<textarea>` elements with manual styling
+   - **Recommendation**: Enhance input widget to support all HTML input types or create dedicated select/textarea widgets
+
+### Unexpected Behaviors
+
+1. **Route Creation**: Guide doesn't explicitly show where to add routes in router.ex, had to infer from existing patterns
+2. **Form Conversion**: The `to_form/2` function usage differs between static forms and Ash forms
+3. **Debug Mode**: Works well but the positioning of debug indicators can overlap with content
+
+### Guide Improvement Suggestions
+
+1. **Add Explicit Route Instructions**: Show exactly where and how to add routes in router.ex
+2. **Include Import Statements**: Always show the complete list of imports needed for each phase
+3. **Show Error Examples**: Include common compilation errors and their fixes
+4. **Widget API Documentation**: Add a reference section showing all available attributes for each widget
+
+### Repository Enhancement Suggestions
+
+1. **Standardize Widget APIs**:
+   - All form-related widgets should accept `field` attribute consistently
+   - Support common HTML input types in input_widget (select, textarea, etc.)
+
+2. **Improve Modal Widget**:
+   - Add `on_close` or `on_cancel` callback support
+   - Better integration with Phoenix.JS commands
+
+3. **Create Widget Generator**:
+   - A mix task to generate new widgets with standard structure
+   - Include proper attrs, slots, and default styling
+
+4. **Add Widget Documentation**:
+   - Doc comments on each widget showing usage examples
+   - Type specs for all attributes
+
+5. **Consider Phoenix.Component Standards**:
+   - Align widget APIs more closely with Phoenix.Component patterns
+   - Use consistent naming (e.g., all widgets could support `rest` global attributes)
+
+These changes would make the widget system more intuitive and reduce the learning curve for developers following the guide.
