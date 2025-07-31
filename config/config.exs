@@ -66,7 +66,7 @@ config :spark,
 config :foundation,
   ecto_repos: [Foundation.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_domains: [Foundation.Ledger, Foundation.Accounts, Foundation.Dashboard]
+  ash_domains: [Foundation.Ledger, Foundation.Accounts, Foundation.Dashboard, Foundation.TaskManager]
 
 # Configures the endpoint
 config :foundation, FoundationWeb.Endpoint,
