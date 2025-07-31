@@ -2415,3 +2415,132 @@ The proof of concept is achievable but requires deviating from the guide's impli
    - Use consistent naming (e.g., all widgets could support `rest` global attributes)
 
 These changes would make the widget system more intuitive and reduce the learning curve for developers following the guide.
+
+---
+
+## Implementation Notes and Recommendations
+
+### Workarounds and Deviations from the Guide
+
+During the implementation of this proof of concept, several workarounds were necessary:
+
+#### 1. **Ash Resource Type Issue**
+- **Problem**: The guide uses `:text` as an attribute type, but this is not a valid Ash type
+- **Error**: `** (RuntimeError) :text is not a valid type`
+- **Workaround**: Changed `attribute :description, :text` to `attribute :description, :string`
+- **Recommendation**: The guide should document available Ash types or link to Ash documentation
+
+#### 2. **Route Creation Instructions Missing**
+- **Problem**: The guide doesn't explicitly show how to add routes to `router.ex`
+- **Workaround**: Inferred the pattern from existing routes in the file
+- **What we did**: Added `live "/task-dashboard", TaskDashboardLive` after other live routes
+- **Recommendation**: Include explicit router modification instructions in the guide
+
+#### 3. **Form Parameter Keys**
+- **Problem**: Guide examples show `%{"task" => params}` but the actual parameter key depends on the form configuration
+- **Workaround**: Used the correct parameter structure based on `as: :task` in the form
+- **Recommendation**: Clarify that the parameter key matches the `as:` option in `to_form/2`
+
+#### 4. **Ash API Usage Patterns**
+- **Problem**: Initial attempts used incorrect API methods like `Foundation.TaskManager.Task.create!`
+- **Error**: `** (UndefinedFunctionError) function Foundation.TaskManager.Task.create!/1 is undefined`
+- **Workaround**: Used proper Ash patterns:
+  ```elixir
+  Foundation.TaskManager.Task 
+  |> Ash.Changeset.for_create(:create, params)
+  |> Ash.create!()
+  ```
+- **Recommendation**: Show complete Ash API examples early in the guide
+
+#### 5. **Require Atomic Flag**
+- **Problem**: Update action with custom change function triggered a warning about atomic operations
+- **Warning**: `Foundation.TaskManager.Task.update cannot be done atomically`
+- **Workaround**: Added `require_atomic? false` to the update action
+- **Recommendation**: Document when `require_atomic? false` is needed
+
+### Unexpected Behaviors and Discoveries
+
+1. **Widget Field Attributes**: The `field` attribute in widgets expects a `Phoenix.HTML.FormField` struct, not just a field name. This wasn't clear from the guide examples.
+
+2. **Debug Mode Excellence**: The debug mode indicators showing data sources (static/ash) worked perfectly and were extremely helpful during development.
+
+3. **Seamless Real-time Updates**: Once properly configured, the PubSub-based real-time updates worked flawlessly across multiple browser windows with no additional effort.
+
+4. **Calculation Loading**: Calculations like `:is_completed` show as `#Ash.NotLoaded` by default, which is expected behavior but not mentioned in the guide.
+
+### Suggestions for the Guide
+
+#### Documentation Improvements
+
+1. **Add a "Common Gotchas" Section**: Each phase should have a troubleshooting subsection with common errors and their solutions.
+
+2. **Complete Error Messages**: Include full error messages in the guide so developers can quickly identify if they're experiencing the same issue.
+
+3. **Ash API Patterns**: Show the complete flow: Resource → Changeset → Action → Result, with examples for each operation (create, read, update, delete).
+
+4. **Widget Attribute Documentation**: Create a reference table showing all available attributes for each widget with their expected types and examples.
+
+#### Missing Components
+
+1. **Error Handling Patterns**: Show how to handle Ash errors gracefully in the UI, including validation errors and operation failures.
+
+2. **Authorization Integration**: Demonstrate how to integrate Ash policies with the UI for permission-based rendering.
+
+3. **Testing Strategies**: Include examples of testing LiveView components that use Ash resources.
+
+### Suggestions for the Repository
+
+#### Code Improvements
+
+1. **Standardize Widget Attributes**: 
+   - Use `field` consistently across all form-related widgets
+   - Add type specs: `@type field :: Phoenix.HTML.FormField.t()`
+
+2. **Widget Generator Mix Task**:
+   ```bash
+   mix foundation.gen.widget button --slots icon,content --attrs variant,size,type
+   ```
+
+3. **Widget Documentation**: Add `@moduledoc` with usage examples to each widget module.
+
+4. **Type Safety**: Add proper typespecs to all widget functions for better IDE support.
+
+#### Architecture Suggestions
+
+1. **WidgetHelpers Module**: Create a centralized module for common widget patterns:
+   ```elixir
+   defmodule FoundationWeb.Components.WidgetHelpers do
+     def debug_indicator(data_source, debug_mode) do
+       # Standardized debug indicator logic
+     end
+   end
+   ```
+
+2. **Debug Toolbar**: A development-only toolbar showing:
+   - Current data source (static/ash)
+   - Active subscriptions
+   - Recent Ash queries
+   - WebSocket connection status
+
+3. **Form Field Components**: Pre-built form fields that integrate Ash changesets seamlessly:
+   ```elixir
+   <.ash_text_field form={@form} field={:title} />
+   ```
+
+### Overall Assessment
+
+Despite the minor issues encountered, this guide successfully demonstrates a powerful and elegant pattern for building reactive UIs with Ash and Phoenix LiveView. The widget-based architecture provides excellent reusability, and the real-time features work remarkably well.
+
+**Key Strengths**:
+- Clear separation of concerns between UI and data
+- Excellent real-time capabilities with minimal code
+- Reusable widget system that scales well
+- Debug mode that aids development
+
+**Areas for Improvement**:
+- More comprehensive error handling examples
+- Clearer documentation of Ash-specific patterns
+- Better widget API consistency
+- More complete troubleshooting guidance
+
+With the suggested improvements implemented, this guide would serve as an exemplary resource for teams adopting Ash and Phoenix LiveView for modern web applications. The patterns demonstrated here solve real problems elegantly and could significantly accelerate development of data-driven Phoenix applications.
