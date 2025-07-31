@@ -11,7 +11,7 @@ defmodule FoundationWeb.Components.Widgets.Card do
   def card_widget(assigns) do
     ~H"""
     <div class={[
-      "span-#{@span}",
+      span_class(@span),
       "card",
       "bg-base-100",
       "shadow-xl",
@@ -46,4 +46,18 @@ defmodule FoundationWeb.Components.Widgets.Card do
   defp padding_class(10), do: "p-10"
   defp padding_class(12), do: "p-12"
   defp padding_class(_), do: "p-6"
+  
+  defp span_class(1), do: "span-1"
+  defp span_class(2), do: "span-2"
+  defp span_class(3), do: "span-3"
+  defp span_class(4), do: "span-4"
+  defp span_class(5), do: "span-5"
+  defp span_class(6), do: "span-6"
+  defp span_class(7), do: "span-7"
+  defp span_class(8), do: "span-8"
+  defp span_class(9), do: "span-9"
+  defp span_class(10), do: "span-10"
+  defp span_class(11), do: "span-11"
+  defp span_class(12), do: "span-12"
+  defp span_class(_), do: "span-4"
 end

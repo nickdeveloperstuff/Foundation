@@ -44,6 +44,7 @@ defmodule FoundationWeb.Router do
 
     get "/", PageController, :home
     live "/tester-demo", TesterDemoLive
+    live "/newest-try", NewestTryLive
     auth_routes AuthController, Foundation.Accounts.User, path: "/auth"
     sign_out_route AuthController
 

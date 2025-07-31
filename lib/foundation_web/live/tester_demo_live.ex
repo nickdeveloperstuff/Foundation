@@ -127,8 +127,8 @@ defmodule FoundationWeb.TesterDemoLive do
         <.card_widget span={3}>
           <:header>Churn Rate</:header>
           <.stat_widget 
-            value="#{@kpi_data.churn_rate}%"
-            change="-#{@kpi_data.churn_change}%"
+            value={"#{@kpi_data.churn_rate}%"}
+            change={"-#{@kpi_data.churn_change}%"}
             change_label="vs last month"
             trend="down"
             data_source={@data_source}

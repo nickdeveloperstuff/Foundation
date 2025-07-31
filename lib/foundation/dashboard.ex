@@ -4,7 +4,6 @@ defmodule Foundation.Dashboard do
     extensions: [AshPhoenix]
 
   resources do
-    resource Foundation.Dashboard.KpiSummary
-    resource Foundation.Dashboard.Activity
+    # Empty for now - embedded resources removed
   end
 end
