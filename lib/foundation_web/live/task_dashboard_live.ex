@@ -224,7 +224,7 @@ defmodule FoundationWeb.TaskDashboardLive do
   # Create a simple form for static data
   defp create_task_form() do
     Foundation.TaskManager.Task
-    |> AshPhoenix.Form.for_create(:create)
+    |> AshPhoenix.Form.for_create(:create, as: "form")
   end
   
   defp load_task_data(socket, :static) do

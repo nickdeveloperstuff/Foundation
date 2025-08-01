@@ -73,7 +73,6 @@ defmodule Foundation.TaskManager.Task do
     # Custom update action
     update :update do
       accept [:title, :description, :status, :priority]
-      require_atomic? false
       
       # Same validation for title
       validate string_length(:title, min: 3) do
@@ -81,18 +80,7 @@ defmodule Foundation.TaskManager.Task do
       end
       
       # When status changes to completed, set completed_at
-      change fn changeset, _context ->
-        if Ash.Changeset.changing_attribute?(changeset, :status) do
-          case Ash.Changeset.get_attribute(changeset, :status) do
-            :completed -> 
-              Ash.Changeset.change_attribute(changeset, :completed_at, DateTime.utc_now())
-            _ -> 
-              Ash.Changeset.change_attribute(changeset, :completed_at, nil)
-          end
-        else
-          changeset
-        end
-      end
+      change Foundation.TaskManager.Changes.SetCompletedAt
     end
   end
   

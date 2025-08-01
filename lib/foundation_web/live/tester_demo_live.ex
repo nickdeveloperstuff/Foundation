@@ -22,8 +22,8 @@ defmodule FoundationWeb.TesterDemoLive do
     # Start with static data to ensure compatibility
     data_source = :ash  # Change this to :static to use hardcoded data
     
-    # Subscribe to updates if using Ash
-    if data_source == :ash do
+    # Subscribe to updates if connected and using Ash
+    if connected?(socket) && data_source == :ash do
       WidgetData.subscribe_to_updates([:kpi, :activities])
     end
     
